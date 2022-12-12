@@ -4,6 +4,7 @@ from Monkey import Monkey
 from You import You
 
 ROUNDS = 20
+PART_TWO = False
 
 
 if __name__ == '__main__':
@@ -47,9 +48,14 @@ if __name__ == '__main__':
                         else:
                             you.newWorryLevel.append(you.oldWorryLevel[i] + int(text[5]))
                 temp = []
-                for i in range(len(you.newWorryLevel)):
-                    temp.append(you.newWorryLevel[i] // 3)
-                monkey[index].startingItems = temp
+                if not PART_TWO:
+                    for i in range(len(you.newWorryLevel)):
+                        temp.append(you.newWorryLevel[i] // 3)
+                    monkey[index].startingItems = temp
+                else:
+                    for i in range(len(you.newWorryLevel)):
+                        temp.append(you.newWorryLevel[i])
+                    monkey[index].startingItems = temp
                 you.oldWorryLevel = []
             elif line.__contains__('Test'):
                 text = line.strip().split()
