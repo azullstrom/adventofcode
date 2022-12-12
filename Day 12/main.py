@@ -1,241 +1,48 @@
+# Kudos to jonathanpaulson. Learned alot.
+from collections import deque
+data = open("input.txt").read().strip()
+lines = [x for x in data.split('\n')]
 
+GRID = []
+for line in lines:
+    GRID.append(line)
+ROW = len(GRID)
+COL = len(GRID[0])
+# Adding 2D array with size of GRID
+ELEMENTS = [[0 for x in range(COL)] for y in range(ROW)]
+for row in range(ROW):
+    for col in range(COL):
+        if GRID[row][col] == 'S':
+            ELEMENTS[row][col] = 1
+        elif GRID[row][col] == 'E':
+            ELEMENTS[row][col] = 26
+        else:
+            # Checking ascii value and takes away 'a' value for decimal representation. 'a' = 97 - 97 + 1, b = 98 - 97 + 1...
+            ELEMENTS[row][col] = ord(GRID[row][col]) - ord('a') + 1
 
-def moveShortest(steps, path, startRow, startCol, letter, prevRow, prevCol, avoidRow, avoidCol):
-    print(path[startRow][startCol], startRow, startCol, letter)
-    if path[startRow][startCol] == 'z' and path[startRow].__contains__('E'):
-        letter = 'E'
-        print(letter)
-    if path[startRow][startCol] == 'E':
-        return steps
+def breadth_first_search():
+    Q = deque()
+    for row in range(ROW):
+        for col in range(COL):
+            if GRID[row][col] == 'S':
+                # Start node
+                Q.append(((row, col), 0))
+    S = set()
+    while Q:
+        (row, col), depth = Q.popleft()
+        if (row, col) in S:
+            continue
 
-    skipDown = skipUp = skipLeft = skipRight = False
-    if startRow + 1 in avoidRow and startCol in avoidCol:
-        skipDown = True
-    elif startRow - 1 in avoidRow and startCol in avoidCol:
-        skipUp = True
-    elif startRow in avoidRow and startCol + 1 in avoidCol:
-        skipRight = True
-    elif startRow in avoidRow and startCol - 1 in avoidCol:
-        skipLeft = True
+        S.add((row, col))
 
-    if 0 < startRow < len(path) - 1 and 0 < startCol < len(path[0]) - 1:
-        print("if 0")
-        if path[startRow + 1][startCol] == letter and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter) + 1), startRow, startCol, avoidRow, avoidCol)
-        elif path[startRow][startCol + 1] == letter and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter) + 1), startRow, startCol, avoidRow, avoidCol)
-        elif path[startRow - 1][startCol] == letter and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter) + 1), startRow, startCol, avoidRow, avoidCol)
-        elif path[startRow][startCol - 1] == letter and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter) + 1), startRow, startCol, avoidRow, avoidCol)
-        # If no next letter search current
-        elif path[startRow + 1][startCol] == chr(ord(letter) - 1) and startRow + 1 != prevRow and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow, avoidCol)
-        elif path[startRow][startCol + 1] == chr(ord(letter) - 1) and startCol + 1 != prevCol and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter)), startRow, startCol, avoidRow, avoidCol)
-        elif path[startRow - 1][startCol] == chr(ord(letter) - 1) and startRow - 1 != prevRow and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow, avoidCol)
-        elif path[startRow][startCol - 1] == chr(ord(letter) - 1) and startCol - 1 != prevCol and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter)), startRow, startCol, avoidRow, avoidCol)
-        # If dead end
-        avoidRow.append(startRow)
-        avoidCol.append(startCol)
-        return False
-    elif startRow == 0 and 0 < startCol < len(path[0]) - 1:
-        print("if 1")
-        if path[startRow + 1][startCol] == letter and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow][startCol + 1] == letter and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow][startCol - 1] == letter and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        # If no next letter search current
-        elif path[startRow + 1][startCol] == chr(ord(letter) - 1) and startRow + 1 != prevRow and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow][startCol + 1] == chr(ord(letter) - 1) and startCol + 1 != prevCol and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow][startCol - 1] == chr(ord(letter) - 1) and startCol - 1 != prevCol and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        # If dead end
-        avoidRow.append(startRow)
-        avoidCol.append(startCol)
-        return False
-    elif startCol == 0 and 0 < startRow < len(path) - 1:
-        print("if 2")
-        if path[startRow + 1][startCol] == letter and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow][startCol + 1] == letter and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow - 1][startCol] == letter and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        # If no next letter search current
-        elif path[startRow + 1][startCol] == chr(ord(letter) - 1) and startRow + 1 != prevRow and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow][startCol + 1] == chr(ord(letter) - 1) and startCol + 1 != prevCol and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow - 1][startCol] == chr(ord(letter) - 1) and startRow - 1 != prevRow and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        # If dead end
-        avoidRow.append(startRow)
-        avoidCol.append(startCol)
-        return False
-    elif startRow == len(path) - 1 and 0 < startCol < len(path[0]) - 1:
-        print("if 3")
-        if path[startRow][startCol + 1] == letter and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow - 1][startCol] == letter and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow][startCol - 1] == letter and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        # If no next letter search current
-        elif path[startRow][startCol + 1] == chr(ord(letter) - 1) and startCol + 1 != prevCol and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow - 1][startCol] == chr(ord(letter) - 1) and startRow - 1 != prevRow and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow][startCol - 1] == chr(ord(letter) - 1) and startCol - 1 != prevCol and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        # If dead end
-        avoidRow.append(startRow)
-        avoidCol.append(startCol)
-        return False
-    elif startCol == len(path[0]) - 1 and 0 < startRow < len(path) - 1:
-        print("if 4")
-        if path[startRow + 1][startCol] == letter and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow - 1][startCol] == letter and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow][startCol - 1] == letter and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        # If no next letter search current
-        elif path[startRow + 1][startCol] == chr(ord(letter) - 1) and startRow + 1 != prevRow and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow - 1][startCol] == chr(ord(letter) - 1) and startRow - 1 != prevRow and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow][startCol - 1] == chr(ord(letter) - 1) and startCol - 1 != prevCol and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        # If dead end
-        avoidRow.append(startRow)
-        avoidCol.append(startCol)
-        return False
-    elif startRow == 0 and startCol == 0:
-        print("if 5")
-        if path[startRow + 1][startCol] == letter and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow][startCol + 1] == letter and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        # If no next letter search current
-        elif path[startRow + 1][startCol] == chr(ord(letter) - 1) and startRow + 1 != prevRow and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow][startCol + 1] == chr(ord(letter) - 1) and startCol + 1 != prevCol and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        # If dead end
-        avoidRow.append(startRow)
-        avoidCol.append(startCol)
-        return False
-    elif startRow == len(path) - 1 and startCol == len(path[0]) - 1:
-        print("if 6")
-        if path[startRow - 1][startCol] == letter and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow][startCol - 1] == letter and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        # If no next letter search current
-        elif path[startRow - 1][startCol] == chr(ord(letter) - 1) and startRow - 1 != prevRow and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow][startCol - 1] == chr(ord(letter) - 1) and startCol - 1 != prevCol and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        # If dead end
-        avoidRow.append(startRow)
-        avoidCol.append(startCol)
-        return False
-    elif startRow == len(path) - 1 and startCol == 0:
-        print("if 7")
-        if path[startRow][startCol + 1] == letter and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow - 1][startCol] == letter and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        # If no next letter search current
-        elif path[startRow][startCol + 1] == chr(ord(letter) - 1) and startCol + 1 != prevCol and not skipRight:
-            return moveShortest(steps + 1, path, startRow, startCol + 1, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow - 1][startCol] == chr(ord(letter) - 1) and startRow - 1 != prevRow and not skipUp:
-            return moveShortest(steps + 1, path, startRow - 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        # If dead end
-        avoidRow.append(startRow)
-        avoidCol.append(startCol)
-        return False
-    elif startCol == len(path[0]) - 1 and startRow == 0:
-        print("if 8")
-        if path[startRow + 1][startCol] == letter and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        elif path[startRow][startCol - 1] == letter and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter) + 1), startRow, startCol,
-                                avoidRow, avoidCol)
-        # If no next letter search current
-        elif path[startRow + 1][startCol] == chr(ord(letter) - 1) and startRow + 1 != prevRow and not skipDown:
-            return moveShortest(steps + 1, path, startRow + 1, startCol, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        elif path[startRow][startCol - 1] == chr(ord(letter) - 1) and startCol - 1 != prevCol and not skipLeft:
-            return moveShortest(steps + 1, path, startRow, startCol - 1, chr(ord(letter)), startRow, startCol, avoidRow,
-                                avoidCol)
-        # If dead end
-        avoidRow.append(startRow)
-        avoidCol.append(startCol)
-        return False
+        if GRID[row][col] == 'E':
+            return depth
 
+        for dir_row, dir_col in [(-1, 0), (0, 1), (1, 0), (0, -1)]:
+            next_row = row + dir_row
+            next_col = col + dir_col
+            if 0 <= next_row < ROW and 0 <= next_col < COL and ELEMENTS[next_row][next_col] <= 1 + ELEMENTS[row][col]:
+                Q.append(((next_row, next_col), depth + 1))
 
-if __name__ == '__main__':
-    data = open("input.txt").read()
-    lines = [x for x in data.split('\n')]
-    startRow = startCol = 0
-
-    for row in range(len(lines)):
-        for col in range(len(lines[row])):
-            if lines[row][col] == 'S':
-                startRow = row
-                startCol = col
-    #print(startRow, startCol)
-    avoidRow = []
-    avoidCol = []
-    steps = False
-    while not steps:
-        print(steps)
-        steps = moveShortest(0, lines, startRow, startCol, 'a', -2, -2, avoidRow, avoidCol)
-
-    print(steps, avoidRow, avoidCol)
+print("part one: ", breadth_first_search())
 
