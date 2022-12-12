@@ -7,6 +7,8 @@ class You:
         self.oldWorryLevel = []
         self.newWorryLevel = []
         self.divider = 0
+        self.divideTrue = 0
+        self.divideFalse = 0
 
     def getMonkeyCount(self, lines):
         for line in lines:

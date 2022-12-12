@@ -6,17 +6,8 @@ from You import You
 ROUNDS = 20
 
 
-def updateLines(lines, i):
-    if lines[i].__contains__('Operation'):
-        text = lines[i - 1].strip().split()
-
-        for i in range(2, len(text)):
-            text[i] = str(you.newWorryLevel[i - 2])
-        return text
-    return False
-
 if __name__ == '__main__':
-    data = open('test.txt').read()
+    data = open('input.txt').read()
     lines = [x for x in data.split('\n')]
 
     you = You()
@@ -25,18 +16,23 @@ if __name__ == '__main__':
     for i in range(monkey_count):
         monkey.append(Monkey(i))
 
-    for i in range(ROUNDS):
+    index = 0
+    for line in lines:
+        if line.__contains__('Starting items'):
+            text = line.strip().split()
+            worryLevel = you.getWorryLevel(text)
+            you.setOldWorryLevel(worryLevel)
+            monkey[index].setStartItems(worryLevel)
+            index += 1
+
+    receivingMonkey = []
+    for roundCount in range(ROUNDS):
         index = -1
-        lineIndex = 0
-        receivingMonkey = []
         for line in lines:
             if line.__contains__('Monkey'):
                 index += 1
             elif line.__contains__('Starting items'):
-                text = line.strip().split()
-                worryLevel = you.getWorryLevel(text)
-                you.setOldWorryLevel(worryLevel)
-                monkey[index].setStartItems(worryLevel)
+                you.oldWorryLevel = monkey[index].startingItems
             elif line.__contains__('Operation'):
                 text = line.strip().split()
                 for i in range(len(you.oldWorryLevel)):
@@ -50,40 +46,33 @@ if __name__ == '__main__':
                             you.newWorryLevel.append(you.oldWorryLevel[i] + you.oldWorryLevel[i])
                         else:
                             you.newWorryLevel.append(you.oldWorryLevel[i] + int(text[5]))
-                if len(you.newWorryLevel) != monkey[index].itemCount:
-                    you.newWorryLevel = []
-                    for i in monkey[index].startingItems:
-                        you.newWorryLevel.append(i)
+                temp = []
                 for i in range(len(you.newWorryLevel)):
-                    you.newWorryLevel[i] = math.floor(you.newWorryLevel[i] / 3)
-                    monkey[index].startingItems[i] = you.newWorryLevel[i]
+                    temp.append(you.newWorryLevel[i] // 3)
+                monkey[index].startingItems = temp
                 you.oldWorryLevel = []
             elif line.__contains__('Test'):
                 text = line.strip().split()
                 you.setDivider(int(text[3]))
             elif line.__contains__('true'):
                 text = line.strip().split()
-                for item in monkey[index].startingItems:
-                    if item % you.divider == 0:
-                        receivingMonkey.append(int(text[5]))
+                you.divideTrue = int(text[5])
             elif line.__contains__('false'):
                 text = line.strip().split()
-                for item in monkey[index].startingItems:
-                    if item % you.divider != 0:
-                        receivingMonkey.append(int(text[5]))
+                you.divideFalse = int(text[5])
             else:
+                temp = [x for x in monkey[index].startingItems]
                 for i in range(len(monkey[index].startingItems)):
                     itemInAir = monkey[index].throwAway()
-                    monkey[receivingMonkey[i]].catchItem(itemInAir)
+                    if temp[i] % you.divider == 0:
+                        monkey[you.divideTrue].catchItem(itemInAir)
+                    else:
+                        monkey[you.divideFalse].catchItem(itemInAir)
                 you.newWorryLevel = []
                 receivingMonkey = []
-            temp = updateLines(lines, lineIndex)
-            if temp:
-                line = temp
-            lineIndex += 1
 
     monkeyInspectionList = []
     for i in monkey:
-        print(i.startingItems)
         monkeyInspectionList.append(i.inspectedItems)
-    print(monkeyInspectionList)
+    monkeyInspectionList.sort(reverse=True)
+    print("part one: ", monkeyInspectionList[0] * monkeyInspectionList[1], monkeyInspectionList)

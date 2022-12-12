@@ -15,16 +15,15 @@ class Monkey:
         self.startingItems.append(item)
 
     def throwAway(self):
+        self.inspectedItems += 1
         self.itemCount -= 1
         return self.startingItems.pop(0)
 
     def setStartItems(self, startItems):
         for i in startItems:
             self.startingItems.append(i)
-            self.inspectedItems += 1
             self.itemCount += 1
 
     def catchItem(self, itemInAir):
         self.startingItems.append(itemInAir)
-        self.inspectedItems += 1
         self.itemCount += 1
