@@ -37,11 +37,13 @@ for game in data:
     game_scores.append([red_max, green_max, blue_max])
 
 cubes_rgb = [12, 13, 14]
-total_sum = 0
+part_one = 0
+part_two = 0 
 
 for i, game in enumerate(game_scores, 1):
     if all(c <= cubes for c, cubes in zip(game, cubes_rgb)):
-        total_sum += i
-print(total_sum)
+        part_one += i
+    part_two += game[0] * game[1] * game [2]
+print(part_one, part_two)
 
 
