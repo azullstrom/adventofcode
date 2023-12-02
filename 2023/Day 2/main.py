@@ -43,7 +43,7 @@ part_two = 0
 for i, game in enumerate(game_scores, 1):
     if all(c <= cubes for c, cubes in zip(game, cubes_rgb)):
         part_one += i
-    part_two += game[0] * game[1] * game [2]
+    part_two += game[0] * game[1] * game[2]
 print(part_one, part_two)
 
 
