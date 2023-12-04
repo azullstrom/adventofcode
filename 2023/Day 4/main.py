@@ -1,15 +1,19 @@
+from collections import defaultdict
+
 input_file = 'input.txt'
 data = open(input_file).read().split('\n')
 arr = []
 part_one = 0
+instances = defaultdict(int)
 
 for i in data:
     arr.append(i.split(' '))
 
-for row in arr:
+for game_num, row in enumerate(arr, 1):
     right_side = False
     winning_temp = []
     your_temp = []
+    instances[game_num] += 1
     for col in row:
         if col == '|':
             right_side = True
@@ -22,11 +26,12 @@ for row in arr:
     your_set = set(your_temp)
     correct_set = win_set.intersection(your_set)
     temp = 0
-    for i in range(len(correct_set)):
+    for j, _ in enumerate(correct_set, 1):
+        instances[game_num+j] += instances[game_num]
         if(temp == 0):
             temp = 1
         else:
             temp *= 2
     part_one += temp
-
-print(part_one)
+part_two = sum(instances.values())
+print(part_one, part_two)
